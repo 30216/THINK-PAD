@@ -8,14 +8,15 @@ import connectDB from "./config/db.js";
 import dotenv from "dotenv";
 
 dotenv.config();
-
+// Connect to database
+connectDB();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Connect to database
-connectDB();
+
 
 // Middleware / Routes
+app.use(express.json()); // Middleware to parse JSON bodies
 app.use("/api/notes", notesRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/posts", postsRoutes);

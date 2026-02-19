@@ -1,14 +1,66 @@
+import Note from "../models/Note.js";
 
-export function getAllNotes (req, res){
-    res.status(200).json({message:"your fetched  the notes status is active! yo p"});
-};
+export async function getAllNotes(req, res) {
+  try {
+    const notes = await Note.find();
+    res.status(200).json(notes);
+  } catch (error) {
+    console.error("Error fetching notes:", error);
+    res.status(500).json({ message: "Error fetching notes", error: error.message });
+  }
+}
 
-export function updateNote (req, res){
-    res.status(200).json({message:"your updated the notes status is active! yo p"});
-};
-export function createNotes (req, res){
-    res.status(200).json({message:"your created the notes status is active! yo p"});
-};
-export function deleteNote (req, res){
-    res.status(200).json({message:"your deleted the notes status is active! yo p"});
-};
+export async function createNotes(req, res) {
+  try {
+    const { title, content } = req.body;
+
+    if (!title || !content) {
+      return res.status(400).json({ message: "Title and content are required" });
+    }
+
+    const newNote = new Note({ title, content });
+    await newNote.save();
+
+    res.status(201).json({ message: "Note created successfully", note: newNote });
+  } catch (error) {
+    console.error("Error creating note:", error);
+    res.status(500).json({ message: "Error creating note", error: error.message });
+  }
+}
+
+export async function updateNote(req, res) {  
+  try {
+    const { id } = req.params;
+    const { title, content } = req.body;
+
+    const updatedNote = await Note.findByIdAndUpdate(
+      id,
+      { title, content },
+      { new: true } 
+    );
+
+    if (!updatedNote) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+
+    res.status(200).json({ message: "Note updated successfully", note: updatedNote });
+  } catch (error) {
+    console.error("Error updating note:", error);
+    res.status(500).json({ message: "Error updating note", error: error.message });
+  }
+}
+export async function deleteNote(req, res) {  
+  try {
+    const { id } = req.params;
+    const deletedNote = await Note.findByIdAndDelete(id);
+
+    if (!deletedNote) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+
+    res.status(200).json({ message: "Note deleted successfully", note: deletedNote });
+  } catch (error) {
+    console.error("Error deleting note:", error);
+    res.status(500).json({ message: "Error deleting note", error: error.message });
+  }
+}
